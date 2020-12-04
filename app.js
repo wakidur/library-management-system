@@ -33,10 +33,8 @@ const ErrorResponse = require('./utilities/error-response');
  * route handlers files.
  */
 const authRouter = require('./routes/authRoutes');
-// const productRouter = require('./routes/productRoutes');
-// const promoCodeRouter = require('./routes/promoCodeRoutes');
-// const orderRouter = require('./routes/orderRoutes');
-// const promoCodeUsesRouter = require('./routes/promoCodeUsesByUserRoutes');
+const bookRouter = require('./routes/bookRoutes');
+const requetBookRouter = require('./routes/requetBookRoutes');
 /**
  * Create Express server.
  */
@@ -84,8 +82,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // API ROUTES
 app.use('/api/v1/auth', authRouter);
-// app.use('/api/v1/product', productRouter);
-// app.use('/api/v1/promocode', promoCodeRouter);
+app.use('/api/v1/book', bookRouter);
+app.use('/api/v1/requetbook', requetBookRouter);
 // app.use('/api/v1/order', orderRouter);
 // app.use('/api/v1/promocodeuses', promoCodeUsesRouter);
 

@@ -94,6 +94,30 @@ function findByIdAndPopulate(model, id, popOptions) {
       });
   });
 }
+/**
+ * Find by id and two Populate
+ *
+ * @param {*} model
+ * @param {*} id
+ * @param {*} popOptionsOne
+ * @param {*} popOptionsTwo
+ */
+
+function findByIdAndTwoPopulate(model, id, popOptionsOne, popOptionsTwo) {
+  // support for Find by id and popOptions
+  return new Promise((resolve, reject) => {
+    model
+      .findById(id)
+      .populate(popOptionsOne)
+      .populate(popOptionsTwo)
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+}
 
 /**
  * Find by ID
@@ -204,6 +228,7 @@ module.exports = {
   countDocuments,
   findWithPopulate,
   findByIdAndPopulate,
+  findByIdAndTwoPopulate,
   findById,
   findByIdAndUpdate,
   findByIdAndDelete,

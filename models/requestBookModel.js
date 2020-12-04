@@ -4,27 +4,28 @@ function addDays(dateObj, numDays) {
   return dateObj.setDate(dateObj.getDate() + numDays);
 }
 const RequestBookSchema = new mongoose.Schema({
-  book: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Book',
-    required: false,
-  },
+  book: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Book',
+      required: [true, 'Request Book must belong to a book!'],
+    },
+  ],
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    required: [true, 'Booking must belong to a User!'],
+    required: [true, 'Request Book must belong to a User!'],
   },
+
   isRequestForAllBooks: {
     type: Boolean,
     required: false,
     default: false,
   },
-
   requestExpiredIn: {
     type: Date,
     required: false,
   },
-
   createdAt: {
     type: Date,
     default: Date.now(),
