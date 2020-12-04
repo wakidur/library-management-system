@@ -14,7 +14,16 @@ const UserSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: false,
+      required: [true, 'Please provide your email'],
+      index: true,
+      unique: true,
+      dropDups: true,
+      lowercase: true,
+      // Regexp to validate emails with more strict rules as added in tests/users.js which also conforms mostly with RFC2822 guide lines
+      match: [
+        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        'Please enter a valid email',
+      ],
     },
     password: {
       type: String,
@@ -29,7 +38,7 @@ const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: {
-        values: ['student', 'librarian', 'author'],
+        values: ['student', 'librarian'],
         message: 'Role is either: student, librarian, author',
       },
       default: 'student',
@@ -53,7 +62,8 @@ const UserSchema = new mongoose.Schema(
   }
 );
 // Schema Index
-UserSchema.index({ phone: 1 });
+UserSchema.index({ name: 1 });
+UserSchema.index({ email: 1 });
 // Document Middleware: runs before .save() and .create().
 // Encrypt password using bcrypt
 UserSchema.pre('save', async function (next) {

@@ -4,48 +4,59 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
-const BookSchema = new new mongoose.Schema({
-  bookName: {
-    type: String,
-    required: [true, 'A book must have a name'],
-    unique: true,
-    trim: true,
-    maxlength: [40, 'A book name must have less or equal then 50 characters'],
-    minlength: [3, 'A book name must have more or equal then 3 characters'],
-    // validate: [validator.isAlpha, 'Tour name must only contain characters']
+const BookSchema = new mongoose.Schema(
+  {
+    bookName: {
+      type: String,
+      required: [true, 'A book must have a name'],
+      unique: true,
+      trim: true,
+      maxlength: [
+        150,
+        'A book name must have less or equal then 105 characters',
+      ],
+      minlength: [1, 'A book name must have more or equal then 1 characters'],
+      // validate: [validator.isAlpha, 'Tour name must only contain characters']
+    },
+    slug: String,
+    author: {
+      type: String,
+      required: [true, 'Please tell us author name!'],
+    },
+    bookImage: {
+      type: String,
+      required: false,
+    },
+    releaseDate: {
+      type: Date,
+      required: true,
+    },
+    genre: {
+      type: String,
+      required: false,
+    },
+    isBookActive: {
+      type: Boolean,
+      default: true,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+      select: false,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now(),
+      select: false,
+    },
   },
-  slug: String,
-  author: {
-    type: String,
-    required: [true, 'Please tell us author name!'],
-  },
-  bookImage: {
-    type: String,
-    required: false,
-  },
-  releaseDate: {
-    type: Date,
-    required: true,
-  },
-  genre: {
-    type: String,
-    required: false,
-  },
-  isBookActive: {
-    type: Boolean,
-    default: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-    select: false,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now(),
-    select: false,
-  },
-})();
+  {
+    timestamps: true,
+    versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
 // Index it will help to search books
 BookSchema.index({ bookName: 1 });

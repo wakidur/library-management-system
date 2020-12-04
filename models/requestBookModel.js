@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
-const bookingSchema = new mongoose.Schema({
+function addDays(dateObj, numDays) {
+  return dateObj.setDate(dateObj.getDate() + numDays);
+}
+const RequestBookSchema = new mongoose.Schema({
   book: {
     type: mongoose.Schema.ObjectId,
     ref: 'Book',
@@ -13,12 +16,15 @@ const bookingSchema = new mongoose.Schema({
   },
   isRequestForAllBooks: {
     type: Boolean,
-    required: [
-      true,
-      'Book request must belong to a single book or all books Request!',
-    ],
+    required: false,
     default: false,
   },
+
+  requestExpiredIn: {
+    type: Date,
+    required: false,
+  },
+
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -31,6 +37,10 @@ const bookingSchema = new mongoose.Schema({
   },
 });
 
-const Booking = mongoose.model('Booking', bookingSchema);
+// DOCUMENT MIDDLEWARE: runs before .save() and .create()
+RequestBookSchema.pre('save', function (next) {
+  this.requestExpiredIn = addDays(new Date(), 5);
+  next();
+});
 
-module.exports = Booking;
+module.exports = mongoose.model('RequetBook', RequestBookSchema);

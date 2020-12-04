@@ -21,7 +21,7 @@ const compression = require('compression');
 const fileUpload = require('express-fileupload');
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
-require('dotenv').config({ path: 'config.env' });
+require('dotenv').config({ path: '.env' });
 // Globale Error Handler
 const globalErrorHandler = require('./middleware/error-handler');
 // Database connection
@@ -45,11 +45,6 @@ const app = express();
 // Database Connect instantiate
 connectDB();
 
-// 1) GLOBAL MIDDLEWARES
-// Serving static files
-app.use(express.static(path.join(__dirname, 'uploads')));
-app.use('/uploads', express.static('uploads'));
-
 // Set security HTTP headers
 app.use(helmet());
 // Limit requests from same API
@@ -65,6 +60,7 @@ app.use(cors());
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); // Make sure the body is parsed beforehand.
+// File Upload
 app.use(
   fileUpload({
     useTempFiles: true,

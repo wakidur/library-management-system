@@ -1,6 +1,4 @@
 /**
-
-/**
  * 3th party dependencies Modules from the npm .
  */
 const Joi = require('joi');
@@ -36,8 +34,7 @@ const sendTokenResponse = (user, statusCode, req, res) => {
   res.cookie('jwt', token, options);
   const userData = {
     id: user._id,
-    phone: user.phone,
-    uid: user.uid,
+    email: user.email,
     role: user.role,
   };
   return res.status(statusCode).json({
@@ -49,8 +46,8 @@ const sendTokenResponse = (user, statusCode, req, res) => {
 
 function endUserJoiSchema() {
   return Joi.object({
-    phone: Joi.string().pattern(
-      new RegExp(/(^([+]{1}[8]{2}|0088)?(01){1}[3-9]{1}\d{8})$/)
+    email: Joi.string().pattern(
+      new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     ),
     password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{6,30}$')),
   });
@@ -70,48 +67,29 @@ exports.signup = asyncHandler(async (req, res, next) => {
   const createtingUserObject = await UserJoiSchema.validateAsync(req.body);
   //  3) Find the User by phone.
   const findUserExist = await MongooseQuery.findOne(User, {
-    phone: createtingUserObject.phone,
+    email: createtingUserObject.email,
   });
-  //  3.1) Find the User by phone exist or not
+
+  //  3.1) Find the User by email exist or not
   if (findUserExist) {
-    return next(new ErrorResponse('This phone number already exist', 400));
+    return next(new ErrorResponse('This email address already exist', 400));
   }
-
-  console.log(createtingUserObject);
-
-  // const newUser = await MongooseQuery.create(User, createtingUserObject);
+  // 4) Create User;
   const newUser = await MongooseQuery.create(User, createtingUserObject);
 
   sendTokenResponse(newUser, 201, req, res);
 });
 
 exports.login = asyncHandler(async (req, res, next) => {
-  const { phone, password } = req.body;
+  // object destructuring
+  const { email, password } = req.body;
 
   // 1) Check if email and password exist
-  if (!phone || !password) {
+  if (!email || !password) {
     return next(new ErrorResponse('Please provide email and password!', 400));
   }
   // 2) Check if user exists && password is correct
-  const user = await User.findOne({ phone }).select('+password');
-
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new ErrorResponse('Incorrect email or password', 401));
-  }
-
-  // 3) If everything ok, send token to client
-  sendTokenResponse(user, 200, req, res);
-});
-
-exports.adminLogin = asyncHandler(async (req, res, next) => {
-  const { uid, password } = req.body;
-
-  // 1) Check if email and password exist
-  if (!uid || !password) {
-    return next(new ErrorResponse('Please provide email and password!', 400));
-  }
-  // 2) Check if user exists && password is correct
-  const user = await User.findOne({ uid }).select('+password');
+  const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password))) {
     return next(new ErrorResponse('Incorrect email or password', 401));
