@@ -1,9 +1,4 @@
 /**
- * Node Core Modules
- */
-const crypto = require('crypto');
-
-/**
  * 3rd party modules from npm.
  */
 const mongoose = require('mongoose');
@@ -16,9 +11,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [false, 'Please add a name'],
       trim: false,
-    },
-    uid: {
-      type: String,
     },
     email: {
       type: String,
@@ -34,14 +26,13 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    phone: {
-      type: String,
-      maxlength: [20, 'Phone number can not be longer than 20 characters'],
-      required: false,
-    },
     role: {
       type: String,
-      default: 'user',
+      enum: {
+        values: ['student', 'librarian', 'author'],
+        message: 'Role is either: student, librarian, author',
+      },
+      default: 'student',
     },
     createdAt: {
       type: Date,
@@ -74,12 +65,6 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-UserSchema.pre('remove', async function (next) {
-  await this.model('Order').deleteMany({ userId: this._id });
-
-  next();
-});
-
 // Match user entered password to hashed password in database
 UserSchema.methods.validPassword = function (enteredPassword) {
   // Synchronously tests a string against a hash.
@@ -91,26 +76,12 @@ UserSchema.methods.correctPassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Create Password Reset Token (Use this methods forgotPassword controller )
-UserSchema.methods.createPasswordResetToken = function () {
-  // User get this resetToken
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  // but password reset token will be again encrypt because for security10 reason
-  this.passwordResetToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
-
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minute timer
-  return resetToken;
-};
-
 // Sign JWT and return
 UserSchema.methods.getSignedJwtToken = function () {
   return jwt.sign(
     {
       id: this._id,
-      phone: this.phone,
+      email: this.email,
       role: this.role,
     },
     process.env.JWT_SECRET,
