@@ -34,7 +34,7 @@ const ErrorResponse = require('./utilities/error-response');
  */
 const authRouter = require('./routes/authRoutes');
 const bookRouter = require('./routes/bookRoutes');
-const requetBookRouter = require('./routes/requetBookRoutes');
+const requetForBookRouter = require('./routes/requestForBookRoutes');
 /**
  * Create Express server.
  */
@@ -83,9 +83,7 @@ if (process.env.NODE_ENV === 'development') {
 // API ROUTES
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/book', bookRouter);
-app.use('/api/v1/requetbook', requetBookRouter);
-// app.use('/api/v1/order', orderRouter);
-// app.use('/api/v1/promocodeuses', promoCodeUsesRouter);
+app.use('/api/v1/requetbook', requetForBookRouter);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '/client/build')));

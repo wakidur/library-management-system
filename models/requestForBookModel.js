@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 function addDays(dateObj, numDays) {
   return dateObj.setDate(dateObj.getDate() + numDays);
 }
-const RequestBookSchema = new mongoose.Schema({
+const RequestForBookSchema = new mongoose.Schema({
   book: [
     {
       type: mongoose.Schema.ObjectId,
@@ -39,9 +39,9 @@ const RequestBookSchema = new mongoose.Schema({
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
-RequestBookSchema.pre('save', function (next) {
+RequestForBookSchema.pre('save', function (next) {
   this.requestExpiredIn = addDays(new Date(), 5);
   next();
 });
 
-module.exports = mongoose.model('RequetBook', RequestBookSchema);
+module.exports = mongoose.model('RequetForBook', RequestForBookSchema);

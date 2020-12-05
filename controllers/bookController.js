@@ -104,7 +104,6 @@ exports.getBook = asyncHandler(async (req, res, next) => {
 
 exports.createBook = asyncHandler(async (req, res, next) => {
   // 1) check request body is empty!
-  console.log(req.body);
   if (!req.body) {
     return next(new ErrorResponse(`${Message.RequestBodyIsEmpty}`, 400));
   }
