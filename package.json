@@ -2,7 +2,7 @@
   "name": "library-management-system",
   "version": "1.0.0",
   "description": "Use Express-mongodb to create some REST API endpoints to perform these actions: (library management system)",
-  "main": "app.js",
+  "main": "server.js",
   "private": true,
   "scripts": {
     "test": "",

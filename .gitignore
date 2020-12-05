@@ -107,3 +107,6 @@ dist
 /tmp
 tmp/
 
+#VS Code
+.vscode
+

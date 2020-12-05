@@ -30,26 +30,23 @@ const sendTokenResponse = (user, statusCode, req, res) => {
   if (process.env.NODE_ENV === 'production') {
     options.secure = true;
   }
-
+  // Support Cookie base authontication
   res.cookie('jwt', token, options);
-  const userData = {
-    id: user._id,
-    email: user.email,
-    role: user.role,
-  };
+
   return res.status(statusCode).json({
     status: 'success',
     token,
-    authData: userData,
   });
 };
 
 function endUserJoiSchema() {
   return Joi.object({
+    name: Joi.string().min(1).max(150).required(),
     email: Joi.string().pattern(
       new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     ),
     password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{6,30}$')),
+    passwordConfirm: Joi.ref('password'),
   });
 }
 
@@ -65,6 +62,7 @@ exports.signup = asyncHandler(async (req, res, next) => {
   // 2.1) Validate check with request body
   // Validate request body by the JOI Schema
   const createtingUserObject = await UserJoiSchema.validateAsync(req.body);
+
   //  3) Find the User by phone.
   const findUserExist = await MongooseQuery.findOne(User, {
     email: createtingUserObject.email,

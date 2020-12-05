@@ -9,8 +9,11 @@ const UserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [false, 'Please add a name'],
-      trim: false,
+      required: [true, 'Please add a name'],
+      unique: false,
+      trim: true,
+      maxlength: [150, 'A  name must have less or equal then 105 characters'],
+      minlength: [1, 'A  name must have more or equal then 1 characters'],
     },
     email: {
       type: String,
@@ -31,6 +34,17 @@ const UserSchema = new mongoose.Schema(
       minlength: [6, 'Password must be atleast 6 character long'],
       select: false,
     },
+    passwordConfirm: {
+      type: String,
+      required: [true, 'Please confirm your password'],
+      validate: {
+        // This only works on CREATE and SAVE!!!
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: 'Passwords are not the same!',
+      },
+    },
     photo: {
       type: String,
       required: false,
@@ -41,7 +55,7 @@ const UserSchema = new mongoose.Schema(
         values: ['student', 'librarian'],
         message: 'Role is either: student, librarian',
       },
-      default: 'student',
+      default: 'librarian',
     },
     createdAt: {
       type: Date,
@@ -71,7 +85,8 @@ UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
-
+  // Delete passwordConfirm field
+  this.passwordConfirm = undefined;
   next();
 });
 

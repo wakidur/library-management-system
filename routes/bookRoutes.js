@@ -19,12 +19,20 @@ router.use(protect);
 
 router
   .route('/')
-  .get(advanceResults(Book), getBooks)
+  .get(
+    advanceResults(Book, [
+      {
+        path: 'creatorId',
+        select: 'name email role',
+      },
+    ]),
+    getBooks
+  )
   .post(authorize('librarian'), createBook);
 
 router
   .route('/:bookId')
-  .get(authorize('librarian'), getBook)
+  .get(authorize('student', 'librarian'), getBook)
   .put(authorize('librarian'), updateBook)
   .delete(authorize('librarian'), deleteBookt);
 

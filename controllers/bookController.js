@@ -9,26 +9,44 @@ const asyncHandler = require('../middleware/async-middleware');
 const ErrorResponse = require('../utilities/error-response');
 const mongooseQuery = require('../utilities/mongoose-query');
 const Message = require('../utilities/message');
-
+const { isMongoDBObjectID } = require('../service/utilityService');
 /**
  * Schema require list
  */
 const Book = require('../models/bookModel');
-const { isMongoDBObjectID } = require('../service/utilityService');
-
+// cloudinary config init
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
 
+// book Joi Schem Init
 const bookJoiSchemInit = Joi.object({
   bookName: Joi.string().min(1).max(150).required(),
   author: Joi.string().required(),
-  bookImage: Joi.string().required(),
   releaseDate: Joi.date().required(),
   genre: Joi.string().required(),
 });
+
+// book Init
+const bookInit = (req) => {
+  return {
+    bookName: req.body.bookName,
+    releaseDate: new Date(req.body.releaseDate),
+    author: req.body.author,
+    genre: req.body.genre,
+  };
+};
+
+// Remove book field name for update state
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
 
 exports.getBooks = asyncHandler(async (req, res, next) => {
   // Support Search
@@ -86,6 +104,7 @@ exports.getBook = asyncHandler(async (req, res, next) => {
 
 exports.createBook = asyncHandler(async (req, res, next) => {
   // 1) check request body is empty!
+  console.log(req.body);
   if (!req.body) {
     return next(new ErrorResponse(`${Message.RequestBodyIsEmpty}`, 400));
   }
@@ -95,17 +114,27 @@ exports.createBook = asyncHandler(async (req, res, next) => {
 
   // 2.1) Validate check with request body
   // Validate request body by the JOI Schema
-  await BookJoiSchema.validateAsync(req.body);
-  // 3) Check files
+  const createtingBookObj = await BookJoiSchema.validateAsync(req.body);
+
+  //  3) Find the User by phone.
+  const findBookExist = await mongooseQuery.findOne(Book, {
+    bookName: createtingBookObj.bookName,
+  });
+
+  //  3.1) Find the User by email exist or not
+  if (findBookExist) {
+    return next(new ErrorResponse('This Book Name address already exist', 400));
+  }
+  // 4) Check files
   if (!req.files) return next(new ErrorResponse('Please add a photo', 400));
 
   const file = req.files.bookImage;
 
-  // 3.1) Check file type
+  // 4.1) Check file type
   if (!file.mimetype.startsWith('image'))
     return next(new ErrorResponse('This file is not supported', 400));
 
-  // 3.2) Check file size
+  // 4.2) Check file size
   if (file.size > process.env.FILE_UPLOAD_SIZE)
     return next(
       new ErrorResponse(
@@ -113,7 +142,11 @@ exports.createBook = asyncHandler(async (req, res, next) => {
         400
       )
     );
-
+  // 5) Convet request body for date convertion
+  const bookObj = bookInit(req);
+  // 5.1)  object destructuring
+  const { _id } = req.user;
+  // 6) Save Image on Cloud and get url
   cloudinary.uploader.upload(
     file.tempFilePath,
     {
@@ -132,8 +165,9 @@ exports.createBook = asyncHandler(async (req, res, next) => {
     async function (error, result) {
       if (error) return next(new ErrorResponse('failed to create book', 409));
       const book = await mongooseQuery.create(Book, {
-        ...req.body,
+        ...bookObj,
         bookImage: result.eager[0].url,
+        creatorId: _id,
       });
       res.status(201).json({
         status: 'success',
@@ -145,33 +179,57 @@ exports.createBook = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateBook = asyncHandler(async (req, res, next) => {
-  // 1) check request body is empty!
+  let updateBook = {};
+  // 1) Check is it valid mongo id
+  const isValidID = await isMongoDBObjectID(req.params.bookId);
+  if (!isValidID) {
+    return next(new ErrorResponse(`${Message.THIS_IN_VALID_MONGODB_ID}`, 400));
+  }
+  // 2) check request body is empty!
   if (!req.body) {
     return next(new ErrorResponse(`${Message.RequestBodyIsEmpty}`, 400));
   }
-  // 2) Find by Id and Update Particular Books
+
+  // 3) Filtered out unwanted fields names that are not allowed to be updated
+  const filteredBody = filterObj(
+    req.body,
+    'author',
+    'genre',
+    'releaseDate',
+    'isBookActive'
+  );
+
+  // 3.1) ternary operator for converting date object
+  filteredBody.releaseDate
+    ? (filteredBody.releaseDate = new Date(filteredBody.releaseDate))
+    : null;
+  // 3.2) Check releaseDate is updatable or not
+  if (filteredBody.releaseDate) updateBook = filteredBody;
+  else updateBook = filteredBody;
+
+  // 4) Find by Id and Update Particular Book
   const editBook = await mongooseQuery.findByIdAndUpdate(
     Book,
     req.params.bookId,
-    req.body,
+    updateBook,
     {
       new: true,
       runValidators: true,
     }
   );
-  // 2.1 ) This id on found
+  // 4.1 ) This id on found
   if (!editBook)
     return next(
       new ErrorResponse(
-        404,
-        `Book is not found with id of ${req.params.bookId}`
+        `Book is not found with id of ${req.params.bookId}`,
+        404
       )
     );
   // Success
   res.status(201).json({
     status: 'success',
     message: Message.UPDATE_PARTICULAR_DOCUMENT,
-    data: null,
+    data: { update: editBook },
   });
 });
 

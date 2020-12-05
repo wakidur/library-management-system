@@ -6,6 +6,11 @@ const slugify = require('slugify');
 
 const BookSchema = new mongoose.Schema(
   {
+    creatorId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: [true, 'A book must have a creator'],
+    },
     bookName: {
       type: String,
       required: [true, 'A book must have a name'],
