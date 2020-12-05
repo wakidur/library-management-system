@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "test": "",
-    "start": "nodemon server",
-    "start:prod": "NODE_ENV=production nodemon server",
+    "start": "node server.js",
+    "start:prod": "NODE_ENV=production nodemon server.js",
     "dev": "nodemon server",
     "debug": "ndb server",
     "lint": "eslint \"**/*.js\""
