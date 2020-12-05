@@ -8,7 +8,7 @@
       "email": "wakidur@gmail.com"
     }
   },
-  "host": "http://localhost:5000",
+  "host": "https://quiet-dusk-06744.herokuapp.com/",
   "basePath": "/api/v1",
   "tags": [
     {
