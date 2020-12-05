@@ -28,14 +28,15 @@ NODE_ENV=development
 
 MONGO_URI =your mongodb uri
 
-PAYPAL_CLIENT_ID=your paypal client id
 
 FILE_UPLOAD_PATH=./public/uploads/product
 FILE_UPLOAD_SIZE=1000000
 
-JWT_SECRET=your key
-JWT_EXPIREIN=30d
+JWT_SECRET=b7cbd300
+JWT_EXPIREIN=10d
+JWT_COOKIE_EXPIRE=10d
 
+#https://cloudinary.com/
 CLOUD_NAME=your cloudinary name
 API_KEY=your cloudinary api key
 API_SECRET=your cloudinary api secret key
