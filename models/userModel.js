@@ -55,7 +55,7 @@ const UserSchema = new mongoose.Schema(
         values: ['student', 'librarian'],
         message: 'Role is either: student, librarian',
       },
-      default: 'librarian',
+      default: 'student',
     },
     createdAt: {
       type: Date,

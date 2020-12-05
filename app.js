@@ -10,15 +10,15 @@ const path = require('path');
 const express = require('express');
 
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const fileUpload = require('express-fileupload');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const cors = require('cors');
 const xss = require('xss-clean');
 const hpp = require('hpp');
-const cookieParser = require('cookie-parser');
 const compression = require('compression');
-const fileUpload = require('express-fileupload');
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
 require('dotenv').config({ path: '.env' });
@@ -26,7 +26,6 @@ require('dotenv').config({ path: '.env' });
 const globalErrorHandler = require('./middleware/error-handler');
 // Database connection
 const connectDB = require('./config/db-config');
-
 // Error Response Class
 const ErrorResponse = require('./utilities/error-response');
 /**
@@ -35,6 +34,7 @@ const ErrorResponse = require('./utilities/error-response');
 const authRouter = require('./routes/authRoutes');
 const bookRouter = require('./routes/bookRoutes');
 const requetForBookRouter = require('./routes/requestForBookRoutes');
+const swaggerRouter = require('./routes/swaggerRoutes');
 /**
  * Create Express server.
  */
@@ -80,6 +80,8 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// swagger
+app.use('/swagger', swaggerRouter);
 // API ROUTES
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/book', bookRouter);

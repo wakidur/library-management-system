@@ -1,0 +1,347 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Use Express-mongodb to create some REST API endpoints to perform these actions: (library management system)",
+    "version": "1.0.1",
+    "title": "Library Management System",
+    "contact": {
+      "email": "wakidur@gmail.com"
+    }
+  },
+  "host": "http://localhost:5000",
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Operations about Auth"
+    },
+    {
+      "name": "book",
+      "description": "Everything about your book"
+    },
+    {
+      "name": "requetbook",
+      "description": "Everything about requetbook"
+    }
+  ],
+  "schemes": ["https", "http"],
+  "paths": {
+    "/auth/login": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Logs user into the system",
+        "description": "Login User",
+        "operationId": "loginUser",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The user login",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SingInUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid email/password supplied"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register User",
+        "description": "This can only create student type user",
+        "operationId": "createUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Register User object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RegisterUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          }
+        }
+      }
+    },
+
+    "/book": {
+      "post": {
+        "tags": ["book"],
+        "description": "Create Particular Book",
+        "operationId": "uploadFile",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "bookImage",
+            "in": "formData",
+            "description": "file to upload",
+            "required": true,
+            "type": "file"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Register User object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Book"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": ["librarian"]
+          }
+        ]
+      },
+      "get": {
+        "tags": ["book"]
+      }
+    },
+    "/book/{bookId}": {
+      "get": {
+        "tags": ["book"],
+        "summary": "Get Particular Book",
+        "description": "Get Particular Book"
+      },
+      "delete": {
+        "tags": ["book"],
+        "summary": "delete Particular Book",
+        "description": "delete Particular Book",
+        "security": [
+          {
+            "petstore_auth": ["librarian"]
+          }
+        ]
+      },
+      "put": {
+        "tags": ["book"],
+        "summary": "delete Particular Book",
+        "description": "delete Particular Book",
+        "security": [
+          {
+            "petstore_auth": ["librarian"]
+          }
+        ]
+      }
+    },
+    "/requetbook": {
+      "post": {
+        "tags": ["requetbook"],
+        "summary": "Create Particular Request For Book",
+        "description": "Create Particular Request For Book",
+        "security": [
+          {
+            "petstore_auth": ["librarian"]
+          }
+        ]
+      },
+      "get": {
+        "tags": ["requetbook"],
+        "summary": "Get All Request Books",
+        "description": "Get All Request Books",
+        "security": [
+          {
+            "petstore_auth": ["librarian", "student"]
+          }
+        ]
+      }
+    },
+    "/requetbook/{requestBookId}": {
+      "get": {
+        "tags": ["requetbook"],
+        "summary": "Get Particular Request book",
+        "description": "Get Particular Request book",
+        "security": [
+          {
+            "petstore_auth": ["librarian"]
+          }
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "AuthResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "RequestBook": {
+      "type": "object",
+      "properties": {
+        "book": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        },
+        "isRequestForAllBooks": {
+          "type": "boolean"
+        },
+        "requestExpiredIn": {
+          "type": "date"
+        },
+        "createdAt": {
+          "type": "date"
+        },
+        "updatedAt": {
+          "type": "date"
+        }
+      },
+      "xml": {
+        "name": "RequestBook"
+      }
+    },
+    "Book": {
+      "type": "object",
+      "properties": {
+        "bookName": {
+          "type": "string"
+        },
+        "bookImage": {
+          "type": "file"
+        },
+        "author": {
+          "type": "string"
+        },
+        "releaseDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "genre": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "Book"
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "passwordConfirm": {
+          "type": "string"
+        },
+        "photo": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "User"
+      }
+    },
+    "RegisterUser": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "passwordConfirm": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "RegisterUser"
+      }
+    },
+    "SingInUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "SingInUser"
+      }
+    }
+  }
+  
+}

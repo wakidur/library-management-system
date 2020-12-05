@@ -163,7 +163,7 @@ exports.createBook = asyncHandler(async (req, res, next) => {
     },
     async function (error, result) {
       if (error) return next(new ErrorResponse('failed to create book', 409));
-      const book = await mongooseQuery.create(Book, {
+      await mongooseQuery.create(Book, {
         ...bookObj,
         bookImage: result.eager[0].url,
         creatorId: _id,
@@ -171,7 +171,7 @@ exports.createBook = asyncHandler(async (req, res, next) => {
       res.status(201).json({
         status: 'success',
         message: Message.CREATE_SUCCESSFUL,
-        data: { book },
+        data: null,
       });
     }
   );

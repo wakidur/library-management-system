@@ -1,6 +1,6 @@
 {
   "name": "library-management-system",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Use Express-mongodb to create some REST API endpoints to perform these actions: (library management system)",
   "main": "server.js",
   "private": true,
@@ -64,6 +64,7 @@
     "passport-local": "^1.0.0",
     "promisify": "0.0.3",
     "slugify": "^1.4.5",
+    "swagger-ui-express": "^4.1.5",
     "validator": "^13.1.17",
     "xss-clean": "^0.1.1"
   },
